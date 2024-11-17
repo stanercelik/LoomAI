@@ -196,9 +196,8 @@ This project is licensed under the [MIT License](LICENSE). You are free to use, 
 
 ## Contact
 
-- **Email**: yourname@example.com
-- **GitHub**: [yourusername](https://github.com/yourusername)
-- **LinkedIn**: [Your LinkedIn Profile](https://linkedin.com/in/yourusername)
+- **Email**: tanercelik2001@gmail.com.com
+- **LinkedIn**: [Salim Taner Çelik](https://www.linkedin.com/in/tanerc/)
 
 ---
 
