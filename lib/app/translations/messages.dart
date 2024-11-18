@@ -17,7 +17,7 @@ class Messages extends Translations {
           'home.centerPatternLabel': 'Center Pattern',
           'home.centerPatternHint': 'Example: Geometric shapes',
           'home.sizeLabel': 'Carpet Size',
-          'home.createButton': 'Create Carpet',
+          'home.createCarpetButton': 'Create Carpet',
           'home.error.title.notEnoughCredit': 'Insufficient Credits',
           'home.error.message.notEnoughCredit':
               'Please purchase more credits to create a carpet.',
@@ -38,7 +38,7 @@ class Messages extends Translations {
           'home.centerPatternLabel': 'Merkez Motifi',
           'home.centerPatternHint': 'Örnek: Geometrik şekiller',
           'home.sizeLabel': 'Halının Boyutu',
-          'home.createButton': 'Halını Oluştur',
+          'home.createCarpetButton': 'Halını Oluştur',
           'home.error.title.notEnoughCredit': 'Yetersiz Kredi',
           'home.error.message.notEnoughCredit':
               'Lütfen halı oluşturmak için kredi satın alın.',

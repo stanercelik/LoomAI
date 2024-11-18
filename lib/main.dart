@@ -1,11 +1,24 @@
+import 'package:fal_client/fal_client.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:get/get.dart';
 import 'package:loom_ai_app/app/routes/app_routes.dart';
 import 'package:loom_ai_app/config/themes/theme.dart';
 import 'app/routes/app_pages.dart';
 import 'app/translations/messages.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+
+  final apiToken = dotenv.env['FALAI_API_TOKEN'];
+
+  if (apiToken == null || apiToken.isEmpty) {
+    throw Exception("API Token is not set in .env file");
+  }
+
+  Get.put(FalClient.withCredentials(apiToken));
+
   runApp(const MyApp());
 }
 
