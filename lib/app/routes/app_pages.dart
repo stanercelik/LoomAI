@@ -17,14 +17,14 @@ class AppPages {
     // Home Page
     GetPage(
       name: Routes.HOME,
-      page: () => const HomeView(),
+      page: () => HomeView(),
       binding: HomeBinding(),
     ),
 
     // Market Page
     GetPage(
       name: Routes.MARKET,
-      page: () => const HomeView(),
+      page: () => HomeView(),
       binding: HomeBinding(),
     ),
   ];
