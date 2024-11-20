@@ -52,17 +52,19 @@ class HomeView extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CarpetActionButton(
-                      onPressed: () => controller.shareImage(controller.generatedImageUrl),
-                      icon: Icons.share,
-                      label: 'Paylaş',
-                    ),
-                    const SizedBox(width: 16),
-                    CarpetActionButton(
+                    Obx(() => CarpetActionButton(
+                      icon: Icons.save_alt,
                       onPressed: controller.saveImageToGallery,
-                      icon: Icons.save,
-                      label: 'Galeriye Kaydet',
-                    ),
+                      label: 'home.saveToDevice'.tr,
+                      isLoading: controller.isSavingLoading.value,
+                    )),
+                    const SizedBox(width: 32),
+                    Obx(() => CarpetActionButton(
+                      icon: Icons.share,
+                      onPressed: controller.shareImage,
+                      label: 'home.share'.tr,
+                      isLoading: controller.isSharingLoading.value,
+                    )),
                   ],
                 ),
                 const SizedBox(height: 20),

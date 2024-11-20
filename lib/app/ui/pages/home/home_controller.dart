@@ -42,16 +42,18 @@ class HomeController extends GetxController {
   // Observable state
   final RxInt remainingCredits = 3.obs;
   final RxBool isLoading = false.obs;
+  final RxBool isSharingLoading = false.obs;
+  final RxBool isSavingLoading = false.obs;
   final RxString generatedImageUrl = ''.obs;
-final Rx<ImageSize> selectedSize = ImageSize.landscape_4_3.obs;
-final Map<ImageSize, String> imageSizeOptions = {
-  ImageSize.squareHD: 'home.imageSize.squareHD'.tr,
-  ImageSize.square: 'home.imageSize.square'.tr,
-  ImageSize.portrait_4_3: 'home.imageSize.portrait_4_3'.tr,
-  ImageSize.portrait_16_9: 'home.imageSize.portrait_16_9'.tr,
-  ImageSize.landscape_4_3: 'home.imageSize.landscape_4_3'.tr,
-  ImageSize.landscape_16_9: 'home.imageSize.landscape_16_9'.tr,
-};
+  final Rx<ImageSize> selectedSize = ImageSize.landscape_4_3.obs;
+  final Map<ImageSize, String> imageSizeOptions = {
+    ImageSize.squareHD: 'home.imageSize.squareHD'.tr,
+    ImageSize.square: 'home.imageSize.square'.tr,
+    ImageSize.portrait_4_3: 'home.imageSize.portrait_4_3'.tr,
+    ImageSize.portrait_16_9: 'home.imageSize.portrait_16_9'.tr,
+    ImageSize.landscape_4_3: 'home.imageSize.landscape_4_3'.tr,
+    ImageSize.landscape_16_9: 'home.imageSize.landscape_16_9'.tr,
+  };
   final RxString imageUrl = ''.obs;
 
   // Form controllers
@@ -72,11 +74,9 @@ final Map<ImageSize, String> imageSizeOptions = {
     super.onClose();
   }
 
-  
-  //Business Logic
+  // Business Logic
   String _generatePromptFromFields() {
     if (promptController.text.isNotEmpty) {
-    
       return "${promptController.text} ${
         (renkPaletiController.text.isNotEmpty || kenarMotifleriController.text.isNotEmpty || merkezMotifiController.text.isNotEmpty) ? "with ${
           renkPaletiController.text.isNotEmpty ? "a mix of rich colors such as ${renkPaletiController.text}." : ""
@@ -85,7 +85,6 @@ final Map<ImageSize, String> imageSizeOptions = {
         merkezMotifiController.text.isNotEmpty ? "${merkezMotifiController.text} is styled to match the traditional motifs, with decorative patterns, harmonizing with the overall aesthetic of the carpet.": ""} The edges of the carpet are adorned with ${
           kenarMotifleriController.text.isNotEmpty ? "${kenarMotifleriController.text} motifs." : ""}": "" }" 
         : ""}";
-        
     } else if (promptController.text.isEmpty && (renkPaletiController.text.isNotEmpty || kenarMotifleriController.text.isNotEmpty || merkezMotifiController.text.isNotEmpty)){
       final StringBuffer prompt = StringBuffer(
       'A vibrant Turkish carpet with intricate traditional patterns, featuring symmetrical floral and geometric designs ${
@@ -109,8 +108,6 @@ final Map<ImageSize, String> imageSizeOptions = {
       return "";
   }
     }
-
-    
 
   Future<List<String>> _generateImage(String prompt) async {
     try {
@@ -184,23 +181,55 @@ final Map<ImageSize, String> imageSizeOptions = {
     }
   }
 
-  Future<void> shareImage(RxString imageUrl) async {
+  Future<void> shareImage() async {
+    isSharingLoading.value = true;
     try {
-      final response = await http.get(Uri.parse(imageUrl.value));
-      if (response.statusCode == 200) {
-        final tempDir = await getTemporaryDirectory();
-        final file = File('${tempDir.path}/carpet_${DateTime.now().millisecondsSinceEpoch}.png');
-        await file.writeAsBytes(response.bodyBytes);
-        await Share.shareXFiles([XFile(file.path)], text: 'Generated Carpet Image');
-      } else {
-        throw Exception('Failed to download image');
-      }
+      final uri = Uri.parse(generatedImageUrl.value);
+      final response = await http.get(uri);
+      final bytes = response.bodyBytes;
+      final temp = await getTemporaryDirectory();
+      final path = '${temp.path}/image.jpg';
+      File(path).writeAsBytesSync(bytes);
+      await Share.shareXFiles([XFile(path)]);
     } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isSharingLoading.value = false;
+    }
+  }
+
+  Future<void> saveImageToGallery() async {
+    isSavingLoading.value = true;
+    try {
+      final uri = Uri.parse(generatedImageUrl.value);
+      final response = await http.get(uri);
+      final bytes = response.bodyBytes;
+      final temp = await getTemporaryDirectory();
+      final path = '${temp.path}/image.jpg';
+      File(path).writeAsBytesSync(bytes);
+
+      var status = await Permission.photos.status;
+      if (!status.isGranted) {
+        await Permission.photos.request();
+      }
+      
+      await Gal.putImage(path);
       Get.snackbar(
-        'home.error'.tr,
-        'home.shareFailed'.tr,
-        snackPosition: SnackPosition.BOTTOM,
+        'home.success'.tr,
+        'home.imageSaved'.tr,
+        backgroundColor: Colors.green.withOpacity(0.7),
+        colorText: Colors.white,
       );
+    } catch (e) {
+      debugPrint(e.toString());
+      Get.snackbar(
+        'Error',
+        e.toString(),
+        backgroundColor: Colors.red.withOpacity(0.7),
+        colorText: Colors.white,
+      );
+    } finally {
+      isSavingLoading.value = false;
     }
   }
 
@@ -229,63 +258,6 @@ final Map<ImageSize, String> imageSizeOptions = {
       return false;
     } catch (e) {
       return false;
-    }
-  }
-
-  Future<void> saveImageToGallery() async {
-    if (generatedImageUrl.value.isEmpty) {
-      Get.snackbar('home.error'.tr, 'home.noImageToSave'.tr);
-      return;
-    }
-
-    try {
-      final hasPermission = await _requestPermissions();
-      if (!hasPermission) {
-        Get.snackbar(
-          'home.permissionRequired'.tr,
-          'home.storagePermissionDenied'.tr,
-          duration: const Duration(seconds: 3),
-          mainButton: TextButton(
-            onPressed: () => openAppSettings(),
-            child: Text('home.settings'.tr),
-          ),
-        );
-        return;
-      }
-
-      isLoading.value = true;
-      // Download image
-      final response = await http.get(Uri.parse(generatedImageUrl.value));
-      if (response.statusCode != 200) {
-        throw Exception('home.downloadError'.tr);
-      }
-
-      // Get temporary directory to save the image first
-      final tempDir = await getTemporaryDirectory();
-      final tempPath = '${tempDir.path}/temp_image.png';
-      
-      // Save image to temporary file
-      File tempFile = File(tempPath);
-      await tempFile.writeAsBytes(response.bodyBytes);
-      
-      // Save to gallery using gal
-      await Gal.putImage(tempPath);
-      
-      Get.snackbar(
-        'home.success'.tr,
-        'home.imageSaved'.tr,
-        backgroundColor: Colors.green.withOpacity(0.7),
-        colorText: Colors.white,
-      );
-    } catch (e) {
-      Get.snackbar(
-        'home.error'.tr,
-        'home.saveFailed'.tr,
-        backgroundColor: Colors.red.withOpacity(0.7),
-        colorText: Colors.white,
-      );
-    } finally {
-      isLoading.value = false;
     }
   }
 }
