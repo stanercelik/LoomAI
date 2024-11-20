@@ -9,6 +9,8 @@ class HomeView extends StatelessWidget {
 
   final HomeController controller = Get.put(HomeController());
 
+   HomeView({super.key});
+
 
   @override
   Widget build(BuildContext context) {

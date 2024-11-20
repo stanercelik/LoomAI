@@ -35,6 +35,8 @@ class HomeController extends GetxController {
     merkezMotifiController.dispose();
     super.onClose();
   }
+
+  
   //Business Logic
   //TODO: Buranın sonradan düzenlenmesi gerekiyor
   String _generatePromptFromFields() {
@@ -86,7 +88,7 @@ class HomeController extends GetxController {
         },
         logs: true,
         onQueueUpdate: (update) {
-          print('Queue Update: $update');
+          debugPrint('Queue Update: $update');
         },
       );
 
@@ -97,8 +99,8 @@ class HomeController extends GetxController {
         throw Exception("No images generated");
       }
     } catch (e, stackTrace) {
-      print('Error occurred during image generation: $e');
-      print('Stack trace: $stackTrace');
+      debugPrint('Error occurred during image generation: $e');
+      debugPrint('Stack trace: $stackTrace');
       throw Exception("Image generation failed: $e");
     }
   }

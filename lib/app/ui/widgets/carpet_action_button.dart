@@ -6,7 +6,7 @@ class CarpetActionButton extends StatelessWidget {
   final VoidCallback onPressed;
   final String label;
 
-  const CarpetActionButton({
+  const CarpetActionButton({super.key, 
     required this.icon,
     required this.onPressed,
     required this.label,
