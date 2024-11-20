@@ -62,33 +62,35 @@ class CarpetForm extends GetView<HomeController> {
                   ),
                 ),
               ),
-              child: Obx(() => DropdownButtonFormField<String>(
-                    value: controller.selectedSize.value,
-                    items: controller.sizeOptions
-                        .map((size) => DropdownMenuItem(
-                              value: size,
-                              child: Text(
-                                size,
-                                style: TextStyle(
-                                  color: theme.colorScheme.onSurface,
-                                  fontFamily: 'Poppins',
-                                ),
-                              ),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      controller.selectedSize.value = value!;
-                    },
-                    decoration: InputDecoration(
-                      labelText: 'home.sizeLabel'.tr,
-                      labelStyle: TextStyle(
-                        color: theme.colorScheme.onSurface.withOpacity(0.6),
-                        fontFamily: 'Poppins',
-                      ),
-                    ),
-                    dropdownColor: theme.colorScheme.surface,
-                    icon: Icon(Icons.arrow_drop_down_circle_outlined, color: theme.colorScheme.primary),
-                  )),
+              child: Obx(() => DropdownButtonFormField<ImageSize>(
+      value: controller.selectedSize.value,
+      items: controller.imageSizeOptions.entries
+          .map((entry) => DropdownMenuItem<ImageSize>(
+                value: entry.key,
+                child: Text(
+                  entry.value,
+                  style: TextStyle(
+                    color: theme.colorScheme.onSurface,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+              ))
+          .toList(),
+      onChanged: (value) {
+        if (value != null) {
+          controller.selectedSize.value = value;
+        }
+      },
+      decoration: InputDecoration(
+        labelText: 'home.sizeLabel'.tr,
+        labelStyle: TextStyle(
+          color: theme.colorScheme.onSurface.withOpacity(0.6),
+          fontFamily: 'Poppins',
+        ),
+      ),
+      dropdownColor: theme.colorScheme.surface,
+      icon: Icon(Icons.arrow_drop_down_circle_outlined, color: theme.colorScheme.primary),
+    )),
             ),
             const SizedBox(height: 32),
             SizedBox(

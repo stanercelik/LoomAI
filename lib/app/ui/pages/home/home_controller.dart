@@ -10,12 +10,48 @@ import 'package:share_plus/share_plus.dart';
 import 'package:gal/gal.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+
+enum ImageSize {
+  squareHD,
+  square,
+  portrait_4_3,
+  portrait_16_9,
+  landscape_4_3,
+  landscape_16_9;
+
+  @override
+  String toString() {
+    switch (this) {
+      case ImageSize.squareHD:
+        return 'square_hd';
+      case ImageSize.square:
+        return 'square';
+      case ImageSize.portrait_4_3:
+        return 'portrait_4_3';
+      case ImageSize.portrait_16_9:
+        return 'portrait_16_9';
+      case ImageSize.landscape_4_3:
+        return 'landscape_4_3';
+      case ImageSize.landscape_16_9:
+        return 'landscape_16_9';
+    }
+  }
+}
+
 class HomeController extends GetxController {
   // Observable state
   final RxInt remainingCredits = 3.obs;
   final RxBool isLoading = false.obs;
   final RxString generatedImageUrl = ''.obs;
-  final RxString selectedSize = '16:9'.obs;
+final Rx<ImageSize> selectedSize = ImageSize.landscape_4_3.obs;
+final Map<ImageSize, String> imageSizeOptions = {
+  ImageSize.squareHD: 'home.imageSize.squareHD'.tr,
+  ImageSize.square: 'home.imageSize.square'.tr,
+  ImageSize.portrait_4_3: 'home.imageSize.portrait_4_3'.tr,
+  ImageSize.portrait_16_9: 'home.imageSize.portrait_16_9'.tr,
+  ImageSize.landscape_4_3: 'home.imageSize.landscape_4_3'.tr,
+  ImageSize.landscape_16_9: 'home.imageSize.landscape_16_9'.tr,
+};
   final RxString imageUrl = ''.obs;
 
   // Form controllers
@@ -38,37 +74,39 @@ class HomeController extends GetxController {
 
   
   //Business Logic
-  //TODO: Buranın sonradan düzenlenmesi gerekiyor
   String _generatePromptFromFields() {
-
-    if (promptController.text.isNotEmpty && (renkPaletiController.text.isEmpty || kenarMotifleriController.text.isEmpty || merkezMotifiController.text.isEmpty)) {
-      return promptController.text;
+    if (promptController.text.isNotEmpty) {
+    
+      return "${promptController.text} ${
+        (renkPaletiController.text.isNotEmpty || kenarMotifleriController.text.isNotEmpty || merkezMotifiController.text.isNotEmpty) ? "with ${
+          renkPaletiController.text.isNotEmpty ? "a mix of rich colors such as ${renkPaletiController.text}." : ""
+        } ${ merkezMotifiController.text.isNotEmpty ? "and In the center of the carpet, a beautifully detailed ${
+        merkezMotifiController.text} motif blends seamlessly into the design. The ${
+        merkezMotifiController.text.isNotEmpty ? "${merkezMotifiController.text} is styled to match the traditional motifs, with decorative patterns, harmonizing with the overall aesthetic of the carpet.": ""} The edges of the carpet are adorned with ${
+          kenarMotifleriController.text.isNotEmpty ? "${kenarMotifleriController.text} motifs." : ""}": "" }" 
+        : ""}";
+        
     } else if (promptController.text.isEmpty && (renkPaletiController.text.isNotEmpty || kenarMotifleriController.text.isNotEmpty || merkezMotifiController.text.isNotEmpty)){
       final StringBuffer prompt = StringBuffer(
-      'A vibrant Turkish carpet with intricate traditional patterns, featuring symmetrical floral and geometric designs, ${
+      'A vibrant Turkish carpet with intricate traditional patterns, featuring symmetrical floral and geometric designs ${
+         renkPaletiController.text.isNotEmpty ? "a mix of rich colors such as ${renkPaletiController.text}." : ""
+      }  deep blue, crimson red, and gold., ${
         merkezMotifiController.text.isNotEmpty ? 
       "In the center of the carpet, a beautifully detailed ${
-        merkezMotifiController.text} motif": ""} blends seamlessly into the design. The ${
-        merkezMotifiController.text.isNotEmpty ? merkezMotifiController.text: ""} is styled to match the traditional motifs, with decorative patterns on its body, harmonizing with the overall aesthetic of the carpet. The background patterns are inspired by Ottoman and Persian art, with high detail and texture resembling a handmade rug. The edges of the carpet are adorned with an elegant border of repeating floral motifs.');
-    
-    if (renkPaletiController.text.isNotEmpty) {
-      prompt.write('colors: ${renkPaletiController.text}, ');
-    }
-    if (kenarMotifleriController.text.isNotEmpty) {
-      prompt.write('border motifs: ${kenarMotifleriController.text}, ');
-    }
-    if (merkezMotifiController.text.isNotEmpty) {
-      prompt.write('center motif: ${merkezMotifiController.text}, ');
-    }
-    if (selectedSize.isNotEmpty) {
-      prompt.write('size: ${selectedSize.value}.');
-    }
-
+        merkezMotifiController.text} motif blends seamlessly into the design. ": "" }  The ${
+        merkezMotifiController.text.isNotEmpty ? "${merkezMotifiController.text} is styled to match the traditional motifs, with decorative patterns, harmonizing with the overall aesthetic of the carpet.": ""} The background patterns are inspired by Ottoman and Persian art, with high detail and texture resembling a handmade rug. The edges of the carpet are adorned with ${
+          kenarMotifleriController.text.isNotEmpty ? "${kenarMotifleriController.text} motifs." : "an elegant border of repeating floral motifs."} ');
     return prompt.toString();
   }
   else {
-    return promptController.text;
-    
+    Get.snackbar(
+        'home.success'.tr,
+        'home.imageSaved'.tr,
+        backgroundColor: Colors.green.withOpacity(0.7),
+        colorText: Colors.white,
+      );
+
+      return "";
   }
     }
 
@@ -78,19 +116,19 @@ class HomeController extends GetxController {
     try {
       final fal = Get.find<FalClient>();
       final output = await fal.subscribe(
-        "fal-ai/flux/schnell",
-        input: {
-          "prompt": prompt,
-          "image_size": "landscape_4_3",
-          "num_inference_steps": 4,
-          "num_images": 1,
-          "enable_safety_checker": true,
-        },
-        logs: true,
-        onQueueUpdate: (update) {
-          debugPrint('Queue Update: $update');
-        },
-      );
+  "fal-ai/flux/schnell",
+  input: {
+    "prompt": prompt,
+    "image_size": selectedSize.value.toString(),
+    "num_inference_steps": 4,
+    "num_images": 1,
+    "enable_safety_checker": true,
+  },
+  logs: true,
+  onQueueUpdate: (update) {
+    debugPrint('Queue Update: $update');
+  },
+);
 
       if (output.data['images'] != null) {
         final List images = output.data['images'];
@@ -128,9 +166,8 @@ class HomeController extends GetxController {
     isLoading.value = true;
 
     try {
-      final String prompt = promptController.text.isNotEmpty
-          ? promptController.text
-          : _generatePromptFromFields();
+      final String prompt = _generatePromptFromFields();
+      debugPrint(prompt);
 
       final List<String> imageUrls = await _generateImage(prompt);
       if (imageUrls.isNotEmpty) {

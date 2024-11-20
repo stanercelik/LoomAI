@@ -44,7 +44,10 @@ class HomeView extends StatelessWidget {
           return SingleChildScrollView(
             child: Column(
               children: [
-                Image.network(controller.generatedImageUrl.value),
+                Container(
+                  alignment: Alignment.center,
+                  constraints: const BoxConstraints(maxHeight: 500),
+                  child: Image.network(controller.generatedImageUrl.value)),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
