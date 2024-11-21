@@ -1,7 +1,7 @@
 // ignore_for_file: constant_identifier_names
 
 abstract class Routes {
-  static const SPLASH = '/';
+  static const WELCOME = '/';
   static const HOME = '/home';
-  static const MARKET = '/market';
+  static const SETTINGS = '/settings';
 }

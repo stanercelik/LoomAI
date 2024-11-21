@@ -1,10 +1,10 @@
 import 'dart:io';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loom_ai_app/app/routes/app_routes.dart';
 import 'package:fal_client/fal_client.dart';
+import 'package:loom_ai_app/app/services/storage_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:gal/gal.dart';
@@ -66,48 +66,71 @@ class HomeController extends GetxController {
   final List<String> sizeOptions = ['16:9', '1:1', '4:3'];
 
   @override
+  void onInit() {
+    super.onInit();
+    remainingCredits.value = StorageService.to.credits;
+
+  } 
+
+  @override
   void onClose() {
     promptController.dispose();
     renkPaletiController.dispose();
     kenarMotifleriController.dispose();
     merkezMotifiController.dispose();
+
     super.onClose();
   }
 
-  // Business Logic
-  String _generatePromptFromFields() {
-    if (promptController.text.isNotEmpty) {
-      return "${promptController.text} ${
-        (renkPaletiController.text.isNotEmpty || kenarMotifleriController.text.isNotEmpty || merkezMotifiController.text.isNotEmpty) ? "with ${
-          renkPaletiController.text.isNotEmpty ? "a mix of rich colors such as ${renkPaletiController.text}." : ""
-        } ${ merkezMotifiController.text.isNotEmpty ? "and In the center of the carpet, a beautifully detailed ${
-        merkezMotifiController.text} motif blends seamlessly into the design. The ${
-        merkezMotifiController.text.isNotEmpty ? "${merkezMotifiController.text} is styled to match the traditional motifs, with decorative patterns, harmonizing with the overall aesthetic of the carpet.": ""} The edges of the carpet are adorned with ${
-          kenarMotifleriController.text.isNotEmpty ? "${kenarMotifleriController.text} motifs." : ""}": "" }" 
-        : ""}";
-    } else if (promptController.text.isEmpty && (renkPaletiController.text.isNotEmpty || kenarMotifleriController.text.isNotEmpty || merkezMotifiController.text.isNotEmpty)){
-      final StringBuffer prompt = StringBuffer(
-      'A vibrant Turkish carpet with intricate traditional patterns, featuring symmetrical floral and geometric designs ${
-         renkPaletiController.text.isNotEmpty ? "a mix of rich colors such as ${renkPaletiController.text}." : ""
-      }  deep blue, crimson red, and gold., ${
-        merkezMotifiController.text.isNotEmpty ? 
-      "In the center of the carpet, a beautifully detailed ${
-        merkezMotifiController.text} motif blends seamlessly into the design. ": "" }  The ${
-        merkezMotifiController.text.isNotEmpty ? "${merkezMotifiController.text} is styled to match the traditional motifs, with decorative patterns, harmonizing with the overall aesthetic of the carpet.": ""} The background patterns are inspired by Ottoman and Persian art, with high detail and texture resembling a handmade rug. The edges of the carpet are adorned with ${
-          kenarMotifleriController.text.isNotEmpty ? "${kenarMotifleriController.text} motifs." : "an elegant border of repeating floral motifs."} ');
-    return prompt.toString();
+String _generatePromptFromFields() {
+  // Check if all input fields are empty
+  if (promptController.text.isEmpty &&
+      renkPaletiController.text.isEmpty &&
+      kenarMotifleriController.text.isEmpty &&
+      merkezMotifiController.text.isEmpty) {
+      return "A vibrant Turkish carpet with intricate traditional patterns, featuring symmetrical floral and geometric designs, featuring a mix of rich colors. The edges of the carpet are adorned with an elegant border of repeating floral motifs. The background patterns are inspired by Ottoman and Persian art, with high detail and texture resembling a handmade rug.";
   }
-  else {
-    Get.snackbar(
-        'home.success'.tr,
-        'home.imageSaved'.tr,
-        backgroundColor: Colors.green.withOpacity(0.7),
-        colorText: Colors.white,
-      );
 
-      return "";
+  // Initialize the base prompt
+  StringBuffer prompt = StringBuffer(
+      'A vibrant Turkish carpet with intricate traditional patterns, featuring symmetrical floral and geometric designs');
+
+  // Append user's own prompt if provided
+  if (promptController.text.isNotEmpty) {
+    prompt.write(' ${promptController.text}');
   }
-    }
+
+  // Append color palette details
+  if (renkPaletiController.text.isNotEmpty) {
+    prompt.write(
+        ', featuring a mix of rich colors such as ${renkPaletiController.text}');
+  }
+
+  // Append central motif details
+  if (merkezMotifiController.text.isNotEmpty) {
+    prompt.write(
+        '. In the center of the carpet, a beautifully detailed ${merkezMotifiController.text} motif blends seamlessly into the design');
+    prompt.write(
+        '. The ${merkezMotifiController.text} is styled to match the traditional motifs, with decorative patterns, harmonizing with the overall aesthetic of the carpet');
+  }
+
+  // Append edge motifs details
+  if (kenarMotifleriController.text.isNotEmpty) {
+    prompt.write(
+        '. The edges of the carpet are adorned with ${kenarMotifleriController.text} motifs');
+  } else {
+    prompt.write(
+        '. The edges of the carpet are adorned with an elegant border of repeating floral motifs');
+  }
+
+  // Append background patterns
+  prompt.write(
+      '. The background patterns are inspired by Ottoman and Persian art, with high detail and texture resembling a handmade rug.');
+
+  debugPrint(prompt.toString());
+  // Return the final prompt as a string
+  return prompt.toString();
+}
 
   Future<List<String>> _generateImage(String prompt) async {
     try {
@@ -141,12 +164,17 @@ class HomeController extends GetxController {
   }
 
   // User Actions
-  void navigateToMarket() {
-    Get.toNamed(Routes.MARKET);
+  void navigateToSettings() {
+    Get.toNamed(Routes.SETTINGS);
   }
 
   void resetGeneratedImage() {
     generatedImageUrl.value = '';
+  }
+
+    Future<void> updateCredits(int newValue) async {
+    remainingCredits.value = newValue;
+    await StorageService.to.updateCredits(newValue);
   }
 
   Future<void> createCarpet() async {
@@ -156,19 +184,28 @@ class HomeController extends GetxController {
         'home.error.message.notEnoughCredit'.tr,
         snackPosition: SnackPosition.BOTTOM,
       );
+      // Uncomment the line below when your market page is ready
+      // Get.toNamed(Routes.MARKET);
       return;
     }
 
-    remainingCredits.value--;
     isLoading.value = true;
 
     try {
       final String prompt = _generatePromptFromFields();
+      if (prompt.isEmpty) {
+        return;
+      }
+      
       debugPrint(prompt);
 
       final List<String> imageUrls = await _generateImage(prompt);
       if (imageUrls.isNotEmpty) {
         generatedImageUrl.value = imageUrls.first;
+
+        remainingCredits.value--;
+
+        await updateCredits(remainingCredits.value); // Başarılı durumda kredileri kaydet
       }
     } catch (e) {
       Get.snackbar(
@@ -230,34 +267,6 @@ class HomeController extends GetxController {
       );
     } finally {
       isSavingLoading.value = false;
-    }
-  }
-
-  Future<bool> _requestPermissions() async {
-    try {
-      if (Platform.isAndroid) {
-          PermissionStatus result;
-          
-          try {
-              DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-              AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-
-              if (androidInfo.version.sdkInt >= 33) {
-                  result = await Permission.photos.request();
-              } else {
-                  result = await Permission.storage.request();
-              }
-          } catch (e) {
-              result = await Permission.storage.request();
-          }
-          return result.isGranted;
-      } else if (Platform.isIOS) {
-          final photos = await Permission.photos.request();
-          return photos.isGranted;
-      }
-      return false;
-    } catch (e) {
-      return false;
     }
   }
 }

@@ -9,9 +9,6 @@ class HomeView extends StatelessWidget {
 
   final HomeController controller = Get.put(HomeController());
 
-   HomeView({super.key});
-
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -21,17 +18,23 @@ class HomeView extends StatelessWidget {
         title: Text('home.title'.tr),
         actions: [
           Obx(() => Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text(
-                    '${'home.remainingCredits'.tr}: ${controller.remainingCredits.value}',
-                    style: theme.textTheme.bodyMedium,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.onSurface.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8),
+                    child: Text(
+                      '${'home.remainingCredits'.tr}: ${controller.remainingCredits.value}',
+                      style: theme.textTheme.bodyMedium,
+                    ),
                   ),
                 ),
               )),
           IconButton(
-            icon: const Icon(Icons.store),
-            onPressed: controller.navigateToMarket,
+            icon: const Icon(Icons.settings),
+            onPressed: controller.navigateToSettings,
           ),
         ],
       ),

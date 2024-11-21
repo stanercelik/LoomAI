@@ -5,28 +5,28 @@ class AppThemes {
     brightness: Brightness.light,
     fontFamily: 'Poppins',
     primaryColor: HexColor('#6A994E'),
-    scaffoldBackgroundColor: HexColor('#333333'),
+    scaffoldBackgroundColor: HexColor('#F7F7F7'),
     textTheme: TextTheme(
       displayLarge: TextStyle(
           fontSize: 32,
           fontWeight: FontWeight.bold,
-          color: HexColor('#F7F7F7')),
+          color: HexColor('#333333')),
       displayMedium: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.w500,
-          color: HexColor('#F7F7F7')),
+          color: HexColor('#333333')),
       bodyLarge: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w400,
-          color: HexColor('#F7F7F7')),
+          color: HexColor('#333333')),
       bodyMedium: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w400,
-          color: HexColor('#F7F7F7')),
+          color: HexColor('#333333')),
       bodySmall: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w400,
-          color: HexColor('#F7F7F7')),
+          color: HexColor('#333333')),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
@@ -36,10 +36,10 @@ class AppThemes {
     colorScheme: ColorScheme.light(
       primary: HexColor('#6A994E'),
       secondary: HexColor('#A5D6A7'),
-      surface: HexColor('#333333'),
-      onSurface: HexColor('#F7F7F7'),
-      onPrimary: HexColor('#F7F7F7'),
-      onSecondary: HexColor('#F7F7F7'),
+      surface: HexColor('#F7F7F7'),
+      onSurface: HexColor('#333333'),
+      onPrimary: HexColor('#333333'),
+      onSecondary: HexColor('#333333'),
       error: HexColor('#FF0000'),
     ),
   );
