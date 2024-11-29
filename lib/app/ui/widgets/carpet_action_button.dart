@@ -32,6 +32,7 @@ class CarpetActionButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               padding: EdgeInsets.zero,
+              backgroundColor: theme.colorScheme.primary,
             ),
             child: isLoading 
               ? SizedBox(
@@ -39,10 +40,10 @@ class CarpetActionButton extends StatelessWidget {
                   height: 24,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.onPrimary),
+                    valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
                   ),
                 )
-              : Icon(icon),
+              : Icon(icon, color: theme.colorScheme.onPrimary,),
           ),
         ),
         Text(

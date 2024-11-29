@@ -3,10 +3,11 @@ import 'package:get/get.dart';
 import './settings_controller.dart';
 
 class SettingsView extends GetView<SettingsController> {
-  const SettingsView({Key? key}) : super(key: key);
+  const SettingsView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     // Ensure the controller is initialized
     final SettingsController controller = Get.find<SettingsController>();
 

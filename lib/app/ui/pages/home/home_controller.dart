@@ -40,12 +40,12 @@ enum ImageSize {
 
 class HomeController extends GetxController {
   // Observable state
-  final RxInt remainingCredits = 3.obs;
   final RxBool isLoading = false.obs;
   final RxBool isSharingLoading = false.obs;
   final RxBool isSavingLoading = false.obs;
   final RxString generatedImageUrl = ''.obs;
   final Rx<ImageSize> selectedSize = ImageSize.landscape_4_3.obs;
+
   final Map<ImageSize, String> imageSizeOptions = {
     ImageSize.squareHD: 'home.imageSize.squareHD'.tr,
     ImageSize.square: 'home.imageSize.square'.tr,
@@ -68,7 +68,6 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    remainingCredits.value = StorageService.to.credits;
 
   } 
 
@@ -81,6 +80,7 @@ class HomeController extends GetxController {
 
     super.onClose();
   }
+
 
 String _generatePromptFromFields() {
   // Check if all input fields are empty
@@ -163,29 +163,26 @@ String _generatePromptFromFields() {
     }
   }
 
-  // User Actions
   void navigateToSettings() {
     Get.toNamed(Routes.SETTINGS);
+  }
+
+  void navigateToMarket() {
+    Get.toNamed(Routes.CREDITS);
   }
 
   void resetGeneratedImage() {
     generatedImageUrl.value = '';
   }
 
-    Future<void> updateCredits(int newValue) async {
-    remainingCredits.value = newValue;
-    await StorageService.to.updateCredits(newValue);
-  }
-
   Future<void> createCarpet() async {
-    if (remainingCredits.value <= 0) {
+    if (StorageService.to.credits <= 0) {
       Get.snackbar(
         'home.error.title.notEnoughCredit'.tr,
         'home.error.message.notEnoughCredit'.tr,
         snackPosition: SnackPosition.BOTTOM,
       );
-      // Uncomment the line below when your market page is ready
-      // Get.toNamed(Routes.MARKET);
+      navigateToMarket();
       return;
     }
 
@@ -203,9 +200,7 @@ String _generatePromptFromFields() {
       if (imageUrls.isNotEmpty) {
         generatedImageUrl.value = imageUrls.first;
 
-        remainingCredits.value--;
-
-        await updateCredits(remainingCredits.value); // Başarılı durumda kredileri kaydet
+        await StorageService.to.updateCredits(StorageService.to.credits - 1);
       }
     } catch (e) {
       Get.snackbar(
@@ -268,5 +263,10 @@ String _generatePromptFromFields() {
     } finally {
       isSavingLoading.value = false;
     }
+  }
+
+  void addDebugCredits() {
+    final currentCredits = StorageService.to.credits;
+    StorageService.to.setCredits(currentCredits + 5);
   }
 }

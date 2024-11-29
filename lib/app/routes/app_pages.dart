@@ -1,4 +1,6 @@
 import 'package:get/get.dart';
+import 'package:loom_ai_app/app/ui/pages/credits/credits_binding.dart';
+import 'package:loom_ai_app/app/ui/pages/credits/credits_view.dart';
 import 'package:loom_ai_app/app/ui/pages/home/home_binding.dart';
 import 'package:loom_ai_app/app/ui/pages/home/home_view.dart';
 import 'package:loom_ai_app/app/ui/pages/settings/settings_binding.dart';
@@ -28,6 +30,12 @@ class AppPages {
       name: Routes.SETTINGS,
       page: () => SettingsView(),
       binding: SettingsBinding(),
+    ),
+
+    GetPage(
+      name: Routes.CREDITS,
+      page: () => CreditsView(),
+      binding: CreditsBinding(),
     ),
   ];
 }

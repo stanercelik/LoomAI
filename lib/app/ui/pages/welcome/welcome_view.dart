@@ -1,13 +1,12 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:loom_ai_app/app/ui/pages/splash/welcome_view.dart';
+import 'package:loom_ai_app/app/ui/widgets/carpet_animation.dart';
 import 'welcome_controller.dart';
 
 class WelcomeView extends StatelessWidget {
   final WelcomeController controller = Get.put(WelcomeController());
 
-  WelcomeView({Key? key}) : super(key: key);
+  WelcomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +52,7 @@ class WelcomeView extends StatelessWidget {
                     'welcome.title'.tr,
                     style: theme.textTheme.headlineLarge?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onBackground,
+                      color: theme.colorScheme.onSurface,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -62,7 +61,7 @@ class WelcomeView extends StatelessWidget {
                   Text(
                     'welcome.subtitle'.tr,
                     style: theme.textTheme.bodyLarge?.copyWith(
-                      color: theme.colorScheme.onBackground.withOpacity(0.7),
+                      color: theme.colorScheme.onSurface.withOpacity(0.7),
                     ),
                     textAlign: TextAlign.center,
                   ),

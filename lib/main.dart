@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:loom_ai_app/app/routes/app_routes.dart';
+import 'package:loom_ai_app/app/services/purchase_service.dart';
 import 'package:loom_ai_app/app/services/storage_service.dart';
 import 'package:loom_ai_app/app/ui/pages/settings/settings_controller.dart';
 import 'package:loom_ai_app/config/themes/theme.dart';
@@ -11,7 +12,12 @@ import 'app/translations/messages.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
   await dotenv.load(fileName: ".env");
+
+  final purchaseService = PurchaseService();
+  await purchaseService.configureSDK();
+  Get.put(purchaseService, permanent: true);
 
   final apiToken = dotenv.env['FALAI_API_TOKEN'];
   if (apiToken == null || apiToken.isEmpty) {
@@ -20,6 +26,8 @@ void main() async {
 
   // Initialize services
   await Get.putAsync(() => StorageService().init());
+
+
   Get.put(FalClient.withCredentials(apiToken));
   Get.put(SettingsController(), permanent: true);
 

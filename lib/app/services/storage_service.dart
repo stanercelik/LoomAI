@@ -9,8 +9,12 @@ class StorageService extends GetxService {
   static const String _isFirstLaunchKey = 'isFirstLaunch';
   static const String _creditsKey = 'credits';
   
+  // Observable state
+  final RxInt _credits = 3.obs;
+  
   Future<StorageService> init() async {
     _prefs = await SharedPreferences.getInstance();
+    _credits.value = _prefs.getInt(_creditsKey) ?? 3;
     return this;
   }
   
@@ -22,10 +26,11 @@ class StorageService extends GetxService {
   }
   
   // Credits Management
-  int get credits => _prefs.getInt(_creditsKey) ?? 3;  
-
+  int get credits => _credits.value;
+  
   Future<void> setCredits(int value) async {
     await _prefs.setInt(_creditsKey, value);
+    _credits.value = value;
   }
   
   Future<void> updateCredits(int value) async {

@@ -33,6 +33,7 @@ migrate_working_dir/
 .pub/
 /build/
 .env
+/android/key.properties
 
 # Symbolication related
 app.*.symbols
