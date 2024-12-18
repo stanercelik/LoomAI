@@ -18,18 +18,20 @@ class WelcomeView extends StatelessWidget {
         children: [
           // Background Animation
           Opacity(
-            opacity: 0.2,
-            child: Column(
-              children: List.generate(5, (index) {
-                // Create 5 lines
-                return Expanded(
-                  child: CarpetAnimation(
-                    direction: index % 2 == 0
-                        ? AxisDirection.right
-                        : AxisDirection.left,
-                  ),
-                );
-              }),
+            opacity: 0.4,
+            child: Center(
+              child: Column(
+                children: List.generate(5, (index) {
+                  // Create 5 lines
+                  return Expanded(
+                    child: CarpetAnimation(
+                      direction: index % 2 == 0
+                          ? AxisDirection.right
+                          : AxisDirection.left,
+                    ),
+                  );
+                }),
+              ),
             ),
           ),
           // Foreground Content
@@ -44,7 +46,7 @@ class WelcomeView extends StatelessWidget {
                     theme.brightness == Brightness.dark
                         ? 'assets/images/logo_darkmode.png'
                         : 'assets/images/logo_lightmode.png',
-                    width: 200,
+                    width: 250,
                   ),
                   const SizedBox(height: 40),
                   // Title Text
