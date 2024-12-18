@@ -7,7 +7,7 @@ class PurchaseService {
     await Purchases.setLogLevel(LogLevel.debug);
 
     PurchasesConfiguration? configuration;
-    
+
     if (Platform.isAndroid) {
       final androidApiKey = dotenv.env['REVENUECAT_ANDROID_API_KEY'];
       if (androidApiKey != null) {
@@ -19,7 +19,7 @@ class PurchaseService {
         configuration = PurchasesConfiguration(iosApiKey);
       }
     }
-    
+
     if (configuration != null) {
       await Purchases.configure(configuration);
     }
@@ -29,7 +29,6 @@ class PurchaseService {
     try {
       final offerings = await Purchases.getOfferings();
       final current = offerings.current;
-      
       return current?.availablePackages ?? [];
     } catch (e) {
       print('Error getting offerings: $e');
@@ -40,7 +39,7 @@ class PurchaseService {
   Future<bool> purchasePackage(Package package) async {
     try {
       final purchaseResult = await Purchases.purchasePackage(package);
-      
+
       // Check if the user has the 'credits' entitlement
       final credits = purchaseResult.entitlements.active['credits'];
       return credits != null;

@@ -5,11 +5,11 @@ import 'package:get/get.dart';
 import 'package:loom_ai_app/app/routes/app_routes.dart';
 import 'package:fal_client/fal_client.dart';
 import 'package:loom_ai_app/app/services/storage_service.dart';
+import 'package:loom_ai_app/app/ui/pages/carpet_result/carpet_result_view.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:gal/gal.dart';
 import 'package:permission_handler/permission_handler.dart';
-
 
 enum ImageSize {
   squareHD,
@@ -59,7 +59,8 @@ class HomeController extends GetxController {
   // Form controllers
   final TextEditingController promptController = TextEditingController();
   final TextEditingController renkPaletiController = TextEditingController();
-  final TextEditingController kenarMotifleriController = TextEditingController();
+  final TextEditingController kenarMotifleriController =
+      TextEditingController();
   final TextEditingController merkezMotifiController = TextEditingController();
 
   // Constants
@@ -68,8 +69,7 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-
-  } 
+  }
 
   @override
   void onClose() {
@@ -81,74 +81,71 @@ class HomeController extends GetxController {
     super.onClose();
   }
 
+  String _generatePromptFromFields() {
+    // Check if all input fields are empty
+    if (promptController.text.isEmpty &&
+        renkPaletiController.text.isEmpty &&
+        kenarMotifleriController.text.isEmpty &&
+        merkezMotifiController.text.isEmpty) {
+      return "A vibrant Turkish carpet with intricate traditional patterns. The design features symmetrical floral and geometric elements with a harmonious and cohesive style. The edges of the carpet are highlighted by distinct, detailed border motifs that frame the design seamlessly. The color palette includes rich and vivid tones, applied densely to enhance the carpet's overall texture and aesthetic. At the center, a refined pattern is integrated smoothly into the design, appearing as an organic part of the carpet rather than a separate entity. Background details draw inspiration from Ottoman and Persian art, with intricate handmade-style textures that add depth and authenticity.";
+    }
 
-String _generatePromptFromFields() {
-  // Check if all input fields are empty
-  if (promptController.text.isEmpty &&
-      renkPaletiController.text.isEmpty &&
-      kenarMotifleriController.text.isEmpty &&
-      merkezMotifiController.text.isEmpty) {
-      return "A vibrant Turkish carpet with intricate traditional patterns, featuring symmetrical floral and geometric designs, featuring a mix of rich colors. The edges of the carpet are adorned with an elegant border of repeating floral motifs. The background patterns are inspired by Ottoman and Persian art, with high detail and texture resembling a handmade rug.";
-  }
+    // Initialize the base prompt
+    StringBuffer prompt = StringBuffer(
+        'A vibrant Turkish carpet with intricate traditional patterns. The design features symmetrical floral and geometric elements with a harmonious and cohesive style');
 
-  // Initialize the base prompt
-  StringBuffer prompt = StringBuffer(
-      'A vibrant Turkish carpet with intricate traditional patterns, featuring symmetrical floral and geometric designs');
+    // Append user's own prompt if provided
+    if (promptController.text.isNotEmpty) {
+      prompt.write(' ${promptController.text}');
+    }
 
-  // Append user's own prompt if provided
-  if (promptController.text.isNotEmpty) {
-    prompt.write(' ${promptController.text}');
-  }
+    // Append color palette details
+    if (renkPaletiController.text.isNotEmpty) {
+      prompt.write(
+          ', with a densely applied color palette featuring ${renkPaletiController.text}');
+    }
 
-  // Append color palette details
-  if (renkPaletiController.text.isNotEmpty) {
+    // Append central motif details
+    if (merkezMotifiController.text.isNotEmpty) {
+      prompt.write(
+          '. The center of the carpet is adorned with a ${merkezMotifiController.text} motif that integrates seamlessly into the overall design, appearing as a natural extension of the carpet\'s intricate patterns');
+    }
+
+    // Append edge motifs details
+    if (kenarMotifleriController.text.isNotEmpty) {
+      prompt.write(
+          '. The edges of the carpet are highlighted by ${kenarMotifleriController.text} motifs, creating a bold and defined frame that complements the central design');
+    } else {
+      prompt.write(
+          '. The edges of the carpet are highlighted by distinct, detailed border motifs that frame the design seamlessly');
+    }
+
+    // Append background patterns
     prompt.write(
-        ', featuring a mix of rich colors such as ${renkPaletiController.text}');
+        '. Background details draw inspiration from Ottoman and Persian art, with intricate handmade-style textures that add depth and authenticity.');
+
+    debugPrint(prompt.toString());
+    // Return the final prompt as a string
+    return prompt.toString();
   }
-
-  // Append central motif details
-  if (merkezMotifiController.text.isNotEmpty) {
-    prompt.write(
-        '. In the center of the carpet, a beautifully detailed ${merkezMotifiController.text} motif blends seamlessly into the design');
-    prompt.write(
-        '. The ${merkezMotifiController.text} is styled to match the traditional motifs, with decorative patterns, harmonizing with the overall aesthetic of the carpet');
-  }
-
-  // Append edge motifs details
-  if (kenarMotifleriController.text.isNotEmpty) {
-    prompt.write(
-        '. The edges of the carpet are adorned with ${kenarMotifleriController.text} motifs');
-  } else {
-    prompt.write(
-        '. The edges of the carpet are adorned with an elegant border of repeating floral motifs');
-  }
-
-  // Append background patterns
-  prompt.write(
-      '. The background patterns are inspired by Ottoman and Persian art, with high detail and texture resembling a handmade rug.');
-
-  debugPrint(prompt.toString());
-  // Return the final prompt as a string
-  return prompt.toString();
-}
 
   Future<List<String>> _generateImage(String prompt) async {
     try {
       final fal = Get.find<FalClient>();
       final output = await fal.subscribe(
-  "fal-ai/flux/schnell",
-  input: {
-    "prompt": prompt,
-    "image_size": selectedSize.value.toString(),
-    "num_inference_steps": 4,
-    "num_images": 1,
-    "enable_safety_checker": true,
-  },
-  logs: true,
-  onQueueUpdate: (update) {
-    debugPrint('Queue Update: $update');
-  },
-);
+        "fal-ai/flux/schnell",
+        input: {
+          "prompt": prompt,
+          "image_size": selectedSize.value.toString(),
+          "num_inference_steps": 4,
+          "num_images": 1,
+          "enable_safety_checker": true,
+        },
+        logs: true,
+        onQueueUpdate: (update) {
+          debugPrint('Queue Update: $update');
+        },
+      );
 
       if (output.data['images'] != null) {
         final List images = output.data['images'];
@@ -169,6 +166,14 @@ String _generatePromptFromFields() {
 
   void navigateToMarket() {
     Get.toNamed(Routes.CREDITS);
+  }
+
+  void navigateToHome() {
+    Get.toNamed(Routes.HOME);
+  }
+
+  void navigateToResultScreen() {
+    Get.toNamed(Routes.RESULT);
   }
 
   void resetGeneratedImage() {
@@ -193,14 +198,18 @@ String _generatePromptFromFields() {
       if (prompt.isEmpty) {
         return;
       }
-      
-      debugPrint(prompt);
 
+      debugPrint(prompt);
+      Get.to(() => CarpetResultView());
       final List<String> imageUrls = await _generateImage(prompt);
       if (imageUrls.isNotEmpty) {
         generatedImageUrl.value = imageUrls.first;
 
         await StorageService.to.updateCredits(StorageService.to.credits - 1);
+        promptController.clear();
+        renkPaletiController.clear();
+        kenarMotifleriController.clear();
+        merkezMotifiController.clear();
       }
     } catch (e) {
       Get.snackbar(
@@ -244,7 +253,7 @@ String _generatePromptFromFields() {
       if (!status.isGranted) {
         await Permission.photos.request();
       }
-      
+
       await Gal.putImage(path);
       Get.snackbar(
         'home.success'.tr,

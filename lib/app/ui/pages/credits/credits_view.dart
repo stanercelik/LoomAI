@@ -12,14 +12,15 @@ class CreditsView extends GetView<CreditsController> {
       appBar: AppBar(
         title: Text('credits.title'.tr),
         centerTitle: true,
-        actions: [ Padding(
+        actions: [
+          Padding(
             padding: const EdgeInsets.all(8.0),
             child: Obx(() => Text(
-              '${'credits.currentCredits'.tr}: ${controller.remainingCredits.value}',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Theme.of(context).textTheme.bodySmall?.color,
-              ),
-            )),
+                  '${'credits.currentCredits'.tr}: ${controller.remainingCredits.value}',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Theme.of(context).textTheme.bodySmall?.color,
+                      ),
+                )),
           ),
         ],
       ),
@@ -37,9 +38,11 @@ class CreditsView extends GetView<CreditsController> {
                   // Carpet Animation at the top
                   const SizedBox(
                     height: 200,
-                    child: CarpetAnimation(direction: AxisDirection.right,),
+                    child: CarpetAnimation(
+                      direction: AxisDirection.right,
+                    ),
                   ),
-                  
+
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -55,7 +58,7 @@ class CreditsView extends GetView<CreditsController> {
                           isPopular: false,
                         ),
                         const SizedBox(height: 16),
-                        
+
                         _buildCreditPackage(
                           context,
                           title: 'credits.package10.title'.tr,
@@ -65,7 +68,7 @@ class CreditsView extends GetView<CreditsController> {
                           isPopular: true,
                         ),
                         const SizedBox(height: 16),
-                        
+
                         _buildCreditPackage(
                           context,
                           title: 'credits.package20.title'.tr,
@@ -74,28 +77,35 @@ class CreditsView extends GetView<CreditsController> {
                           productId: 'credits_20',
                           isPopular: false,
                         ),
-                        
+
                         const SizedBox(height: 32),
-                        
+
                         // Purchase Button
                         Obx(() => ElevatedButton(
-                          onPressed: controller.selectedPackage.value.isNotEmpty
-                              ? controller.purchaseSelectedPackage
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: Text(
-                            'credits.purchaseButton'.tr,
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: Theme.of(context).colorScheme.onPrimary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        )),
+                              onPressed:
+                                  controller.selectedPackage.value.isNotEmpty
+                                      ? controller.purchaseSelectedPackage
+                                      : null,
+                              style: ElevatedButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Text(
+                                'credits.purchaseButton'.tr,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                            )),
                       ],
                     ),
                   ),
@@ -118,7 +128,7 @@ class CreditsView extends GetView<CreditsController> {
   }) {
     return Obx(() {
       final isSelected = controller.selectedPackage.value == productId;
-      
+
       return Card(
         elevation: isSelected || isPopular ? 8 : 2,
         child: Container(
@@ -143,7 +153,8 @@ class CreditsView extends GetView<CreditsController> {
                 children: [
                   if (isPopular) ...[
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Theme.of(context).primaryColor,
                         borderRadius: BorderRadius.circular(12),
@@ -162,23 +173,23 @@ class CreditsView extends GetView<CreditsController> {
                   Text(
                     title,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     description,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).textTheme.bodySmall?.color,
-                    ),
+                          color: Theme.of(context).textTheme.bodySmall?.color,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     price,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                 ],
               ),

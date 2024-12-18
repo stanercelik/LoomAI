@@ -54,16 +54,19 @@ class CreditsController extends GetxController {
       );
       return;
     }
-    
+
     await purchaseProduct(selectedPackage.value);
   }
 
   Future<void> purchaseProduct(String productId) async {
     isLoading.value = true;
     try {
-      final storeProduct = await Purchases.getProducts([productId]);
-      
-      if (storeProduct.isEmpty) {
+      // Paketleri filtrele ve eşleşen bir paket olup olmadığını kontrol et
+      final matchedPackages = packages.where(
+        (pkg) => pkg.storeProduct.identifier == productId,
+      );
+
+      if (matchedPackages.isEmpty) {
         Get.snackbar(
           'credits.purchaseError'.tr,
           'Ürün bulunamadı. Play Console yapılandırması gerekiyor.',
@@ -72,10 +75,12 @@ class CreditsController extends GetxController {
         return;
       }
 
-      final purchaseResult = await Purchases.purchaseStoreProduct(storeProduct.first);
-      
-      final credits = purchaseResult.entitlements.active['credits'];
-      if (credits != null) {
+      final selectedPkg = matchedPackages.first;
+
+      // Package üzerinden satın alma
+      final success = await purchaseService.purchasePackage(selectedPkg);
+
+      if (success) {
         int creditsToAdd = 0;
         switch (productId) {
           case 'credits_5':
@@ -88,14 +93,25 @@ class CreditsController extends GetxController {
             creditsToAdd = 20;
             break;
         }
-        
+
         await _updateCredits(creditsToAdd);
-        Get.snackbar('credits.purchaseSuccess'.tr, '$creditsToAdd kredi satın alındı!');
-        selectedPackage.value = ''; // Reset selection after successful purchase
+        Get.snackbar(
+          'credits.purchaseSuccess'.tr,
+          '$creditsToAdd kredi satın alındı!',
+        );
+        selectedPackage.value = '';
+      } else {
+        Get.snackbar(
+          'credits.purchaseError'.tr,
+          'Satın alma işlemi başarısız veya iptal edildi.',
+        );
       }
     } catch (e) {
       print('Satın alma hatası: $e');
-      Get.snackbar('credits.purchaseError'.tr, 'Satın alma işlemi sırasında bir hata oluştu: $e');
+      Get.snackbar(
+        'credits.purchaseError'.tr,
+        'Satın alma işlemi sırasında bir hata oluştu: $e',
+      );
     } finally {
       isLoading.value = false;
     }
