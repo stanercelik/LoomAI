@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:get/get.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 
 class PurchaseService {
   Future<void> configureSDK() async {
@@ -28,43 +30,31 @@ class PurchaseService {
   Future<List<Package>> getOfferings() async {
     try {
       final offerings = await Purchases.getOfferings();
-      final current = offerings.current;
-      return current?.availablePackages ?? [];
+      return offerings.current?.availablePackages ?? [];
     } catch (e) {
-      print('Error getting offerings: $e');
+      print('Error fetching offerings: $e');
       return [];
     }
   }
 
-  Future<bool> purchasePackage(Package package) async {
-    try {
-      final purchaseResult = await Purchases.purchasePackage(package);
+  String getLocalizedPackageName(String packageId) {
+    Map<String, Map<String, String>> metadata = {
+      "credits_5": {"tr": "5 Kredi", "en": "5 Credits"},
+      "credits_10": {"tr": "10 Kredi", "en": "10 Credits"},
+      "credits_20": {"tr": "20 Kredi", "en": "20 Credits"}
+    };
 
-      // Check if the user has the 'credits' entitlement
-      final credits = purchaseResult.entitlements.active['credits'];
-      return credits != null;
-    } catch (e) {
-      print('Error making purchase: $e');
-      return false;
-    }
+    String locale = Get.locale?.languageCode ?? 'en';
+    return metadata[packageId]?[locale] ?? packageId;
   }
 
-  Future<CustomerInfo> getCustomerInfo() async {
+  Future<void> showPaywall() async {
     try {
-      return await Purchases.getCustomerInfo();
+      final paywallResult =
+          await RevenueCatUI.presentPaywall(displayCloseButton: true);
+      print('Paywall Result: $paywallResult');
     } catch (e) {
-      print('Error getting customer info: $e');
-      rethrow;
-    }
-  }
-
-  Future<bool> checkCreditsEntitlement() async {
-    try {
-      final customerInfo = await Purchases.getCustomerInfo();
-      return customerInfo.entitlements.active['credits']?.isActive ?? false;
-    } catch (e) {
-      print('Error checking credits entitlement: $e');
-      return false;
+      throw Exception('Failed to show paywall: $e');
     }
   }
 }

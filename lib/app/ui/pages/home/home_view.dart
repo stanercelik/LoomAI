@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loom_ai_app/app/services/purchase_service.dart';
 import 'package:loom_ai_app/app/services/storage_service.dart';
 import 'package:loom_ai_app/app/ui/widgets/carpet_form.dart';
 import 'home_controller.dart';
 
 class HomeView extends StatelessWidget {
   final HomeController controller = Get.put(HomeController());
+  final PurchaseService service = Get.put(PurchaseService());
 
   HomeView({super.key});
 
@@ -18,7 +20,7 @@ class HomeView extends StatelessWidget {
         title: Text('home.title'.tr),
         actions: [
           Obx(() => GestureDetector(
-                onTap: () => Get.toNamed('/credits'),
+                onTap: () => {service.showPaywall()},
                 child: Center(
                   child: Container(
                     decoration: BoxDecoration(

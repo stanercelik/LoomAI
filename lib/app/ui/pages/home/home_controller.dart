@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loom_ai_app/app/routes/app_routes.dart';
 import 'package:fal_client/fal_client.dart';
+import 'package:loom_ai_app/app/services/purchase_service.dart';
 import 'package:loom_ai_app/app/services/storage_service.dart';
 import 'package:loom_ai_app/app/ui/pages/carpet_result/carpet_result_view.dart';
 import 'package:path_provider/path_provider.dart';
@@ -45,6 +46,8 @@ class HomeController extends GetxController {
   final RxBool isSavingLoading = false.obs;
   final RxString generatedImageUrl = ''.obs;
   final Rx<ImageSize> selectedSize = ImageSize.landscape_4_3.obs;
+
+  final PurchaseService service = Get.put(PurchaseService());
 
   final Map<ImageSize, String> imageSizeOptions = {
     ImageSize.squareHD: 'home.imageSize.squareHD'.tr,
@@ -164,10 +167,6 @@ class HomeController extends GetxController {
     Get.toNamed(Routes.SETTINGS);
   }
 
-  void navigateToMarket() {
-    Get.toNamed(Routes.CREDITS);
-  }
-
   void navigateToHome() {
     Get.toNamed(Routes.HOME);
   }
@@ -182,12 +181,7 @@ class HomeController extends GetxController {
 
   Future<void> createCarpet() async {
     if (StorageService.to.credits <= 0) {
-      Get.snackbar(
-        'home.error.title.notEnoughCredit'.tr,
-        'home.error.message.notEnoughCredit'.tr,
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      navigateToMarket();
+      service.showPaywall();
       return;
     }
 
