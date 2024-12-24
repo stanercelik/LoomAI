@@ -70,11 +70,6 @@ class HomeController extends GetxController {
   final List<String> sizeOptions = ['16:9', '1:1', '4:3'];
 
   @override
-  void onInit() {
-    super.onInit();
-  }
-
-  @override
   void onClose() {
     promptController.dispose();
     renkPaletiController.dispose();
@@ -175,13 +170,17 @@ class HomeController extends GetxController {
     Get.toNamed(Routes.RESULT);
   }
 
+  void navigateToCreditsScreen() {
+    Get.toNamed(Routes.CREDITS);
+  }
+
   void resetGeneratedImage() {
     generatedImageUrl.value = '';
   }
 
   Future<void> createCarpet() async {
     if (StorageService.to.credits <= 0) {
-      service.showPaywall();
+      navigateToCreditsScreen();
       return;
     }
 

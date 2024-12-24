@@ -1,11 +1,13 @@
-import 'dart:developer';
-
 import 'package:get/get.dart';
 import 'package:loom_ai_app/app/services/purchase_service.dart';
+import 'package:loom_ai_app/app/services/storage_service.dart';
+import 'package:purchases_flutter/models/package_wrapper.dart';
 
 class CreditsController extends GetxController {
   final RxBool isLoading = false.obs;
-  final RxList<String> packageNames = <String>[].obs;
+  final RxList<Package> packages = <Package>[].obs;
+  final Rxn<Package> selectedPackage = Rxn<Package>();
+  final RxInt remainingCredits = 0.obs;
 
   final PurchaseService purchaseService;
 
@@ -14,42 +16,35 @@ class CreditsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    remainingCredits.value = StorageService.to.credits;
     fetchPaywallContent();
   }
 
   Future<void> fetchPaywallContent() async {
     isLoading.value = true;
     try {
-      // RevenueCat'ten paywall ve paket içeriğini çek
-      final packages = await purchaseService.getOfferings();
-
-      // Metadata kullanarak isimleri yerelleştir
-      final localizedNames = packages.map((pkg) {
-        return purchaseService
-            .getLocalizedPackageName(pkg.storeProduct.identifier);
-      }).toList();
-
-      // Listeyi güncelle
-      packageNames.assignAll(localizedNames);
-
-      // Konsola yazdır
-      for (var name in localizedNames) {
-        log('Localized Package Name: $name');
-      }
+      final offerings = await purchaseService.getOfferings();
+      packages.value = offerings;
     } catch (e) {
-      log('Error fetching paywall content: $e');
-      Get.snackbar('Error', 'Failed to fetch paywall content: $e');
+      print('Error fetching packages: $e');
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> showPaywall() async {
+  void selectPackage(Package package) {
+    selectedPackage.value = package;
+  }
+
+  Future<void> purchaseSelectedPackage() async {
+    if (selectedPackage.value == null) return;
+
     try {
-      final result = await purchaseService.showPaywall();
+      await purchaseService.buyCredits(selectedPackage.value!);
+      remainingCredits.value = StorageService.to.credits;
+      Get.back();
     } catch (e) {
-      Get.snackbar('Error', 'Failed to show paywall: $e');
-      log('Paywall Error: $e');
+      print('Error purchasing package: $e');
     }
   }
 }

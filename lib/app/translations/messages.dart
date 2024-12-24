@@ -67,6 +67,10 @@ class Messages extends Translations {
           'credits.purchaseButton': 'Buy Credits',
           'credits.selectPackageFirst': 'Please select a credit package first',
           'result.title': 'Result',
+          'credits.header': 'Choose the Best Credit Package for You',
+          'credits.subHeader':
+              'Unlock premium features and enjoy the full experience!',
+          'credits.mostPopular': 'Most Popular',
         },
         'tr_TR': {
           'home.title': 'LoomAI',
@@ -134,6 +138,10 @@ class Messages extends Translations {
           'credits.purchaseButton': 'Kredi Satın Al',
           'credits.selectPackageFirst': 'Lütfen önce bir kredi paketi seçin',
           'result.title': 'Halınız',
+          'credits.header': 'Seninle uyumlu en iyi kredi paketini seç',
+          'credits.subHeader':
+              'Premium ozellikleri kullan ve halınızı tam olarak deneyin!',
+          'credits.mostPopular': 'En cok tercih edilen',
         },
       };
 }

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
-import 'package:loom_ai_app/app/services/storage_service.dart';
-import 'package:loom_ai_app/app/ui/pages/home/home_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsController extends GetxController {
@@ -27,7 +25,8 @@ class SettingsController extends GetxController {
       isDarkMode.value = prefs.getBool(_darkModeKey)!;
     } else {
       // If not set, initialize based on system theme
-      final Brightness systemBrightness = WidgetsBinding.instance.window.platformBrightness;
+      final Brightness systemBrightness =
+          WidgetsBinding.instance.window.platformBrightness;
       isDarkMode.value = systemBrightness == Brightness.dark;
     }
 
@@ -64,7 +63,8 @@ class SettingsController extends GetxController {
   }
 
   Future<Locale> _getPlatformLocale() async {
-    final String? systemLocale = await SystemChannels.platform.invokeMethod<String>('getSystemLocale');
+    final String? systemLocale =
+        await SystemChannels.platform.invokeMethod<String>('getSystemLocale');
     final localeString = systemLocale ?? 'en_US';
     final parts = localeString.split('_');
     return Locale(parts[0], parts.length > 1 ? parts[1] : null);

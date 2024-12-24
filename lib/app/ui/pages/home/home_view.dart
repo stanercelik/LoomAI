@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loom_ai_app/app/routes/app_routes.dart';
 import 'package:loom_ai_app/app/services/purchase_service.dart';
 import 'package:loom_ai_app/app/services/storage_service.dart';
 import 'package:loom_ai_app/app/ui/widgets/carpet_form.dart';
@@ -20,7 +21,7 @@ class HomeView extends StatelessWidget {
         title: Text('home.title'.tr),
         actions: [
           Obx(() => GestureDetector(
-                onTap: () => {service.showPaywall()},
+                onTap: () => {Get.toNamed(Routes.CREDITS)},
                 child: Center(
                   child: Container(
                     decoration: BoxDecoration(

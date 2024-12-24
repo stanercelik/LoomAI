@@ -40,7 +40,7 @@ android {
         applicationId = "com.tanercelik.loom_ai_app"
         minSdk = 24
         targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
+        versionCode = 5
         versionName = flutter.versionName
     }
 
